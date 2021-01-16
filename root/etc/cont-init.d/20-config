@@ -1,0 +1,48 @@
+#!/usr/bin/with-contenv bash
+
+# make folders
+mkdir -p \
+	/config/ssl \
+  /downloads/completed \
+  /downloads/recycle
+
+# copy files
+if [[ ! -e /config/aria2.conf ]]
+then
+  cp /aria2/conf/aria2.conf.default /config/aria2.conf
+fi
+
+if [[ ! -e /config/文件过滤.conf ]]
+then
+  cp /aria2/conf/文件过滤.conf /config/文件过滤.conf
+fi
+
+if [[ ! -e /config/aria2.session ]]
+then
+  touch /config/aria2.session
+fi
+
+if [[ ! -e /config/dht.dat ]]
+then
+  touch /config/dht.dat
+fi
+
+if [[ ! -e /config/move.log ]]
+then
+  touch /config/move.log
+fi
+
+if [[ ! -e /config/recycle.log ]]
+then
+  touch /config/recycle.log
+fi
+
+if [[ ! -e /config/delete.log ]]
+then
+  touch /config/delete.log
+fi
+
+if [[ ! -e /config/文件过滤日志.log ]]
+then
+  touch /config/文件过滤日志.log
+fi
