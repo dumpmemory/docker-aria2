@@ -12,7 +12,7 @@ then
   cp /aria2/conf/aria2.conf.default /config/aria2.conf
 fi
 
-if [[ ! -e /config/arsettingsia2.conf ]]
+if [[ ! -e /config/settings.conf ]]
 then
   cp /aria2/conf/settings.conf /config/settings.conf
 fi
