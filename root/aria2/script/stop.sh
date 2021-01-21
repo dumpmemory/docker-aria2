@@ -14,6 +14,7 @@ GET_BASE_PATH
 COMPLETED_PATH
 if [ "${RECYCLE}" = "true" ]; then
     RECYCLE_PATH
+    GET_PATH
     MOVE_RECYCLE
     RM_ARIA2
     exit 0
