@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 GET_BASE_PATH() {
     # Aria2下载目录
     DOWNLOAD_PATH='/downloads'
@@ -14,8 +16,6 @@ GET_BASE_PATH() {
 
     # ============================================================
 
-    FILE_PATH=$3                                                    # Aria2传递给脚本的文件路径。BT下载有多个文件时该值为文件夹内第一个文件，如/root/Download/a/b/1.mp4
-    FILE_NUM=$2
     RELATIVE_PATH=${FILE_PATH#${DOWNLOAD_PATH}/}                    # 普通文件路径转换，去掉开头的下载路径。
     RELATIVE_ANI_PATH=${FILE_PATH#${DOWNLOAD_ANI_PATH}/}            # 动画片路径转换，去掉开头的下载路径。
     RELATIVE_MOV_PATH=${FILE_PATH#${DOWNLOAD_MOV_PATH}/}            # 电影路径转换，去掉开头的下载路径。
@@ -123,8 +123,6 @@ DELETE_EMPTY_DIR() {
     fi
 }
 
-
-
 # =============================内容过滤=============================
 
 CLEAN_UP() {
@@ -142,9 +140,9 @@ CLEAN_UP() {
 MOVE_FILE() {
     if [ "${MOVE}" = "false" ]; then
         exit 0
-    elif [ "${MOVE}" = "dmof" ] && [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then
+    elif [ "${MOVE}" = "dmof" ] && [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then
         exit 0
-    elif [ "${MOVE}" = "true" ]; then
+    elif [ "${MOVE}" = "true" ] || [ "${MOVE}" = "dmof" ]; then
         echo -e "${DATE_TIME} ${INFO} Start move files ..."
         TASK_INFO
         mkdir -p ${TARGET_PATH}
@@ -169,10 +167,10 @@ DELETE_FILE() {
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
         echo -e "${DATE_TIME} ${INFO} deleted files: ${SOURCE_PATH}"
-        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [INFO] delete files: ${SOURCE_PATH}" >>${DELETE_LOG}
+        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [INFO] File deleted successfully: ${SOURCE_PATH}" >>${DELETE_LOG}
     else
         echo -e "${DATE_TIME} ${ERROR} delete failed: ${SOURCE_PATH}"
-        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [ERROR] delete files failed: ${SOURCE_PATH}" >>${DELETE_LOG}
+        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Failed to delete file: ${SOURCE_PATH}" >>${DELETE_LOG}
     fi
 }
 
@@ -181,53 +179,53 @@ DELETE_FILE() {
 MOVE_RECYCLE() {
     echo -e "${DATE_TIME} ${INFO} Start move files to Recycling Bin..."
     TASK_INFO
-    mkdir -p ${RECYCLE_PATH}
-    mv -f "${SOURCE_PATH}" "${RECYCLE_PATH}"
+    mkdir -p ${TARGET_PATH}
+    mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-        echo -e "${DATE_TIME} ${INFO} Move done: ${SOURCE_PATH} -> ${RECYCLE_PATH}"
-        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [INFO] Move done: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${RECYCLE_LOG}
+        echo -e "${DATE_TIME} ${INFO} Move done: ${SOURCE_PATH} -> ${TARGET_PATH}"
+        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [INFO] Successfully moved to the Recycle Bin: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${RECYCLE_LOG}
     else
         echo -e "${DATE_TIME} ${ERROR} Move failed: ${SOURCE_PATH}"
-        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Move failed: ${SOURCE_PATH}" >>${RECYCLE_LOG}
+        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Failed to move to the Recycle Bin: ${SOURCE_PATH}" >>${RECYCLE_LOG}
     fi
 }
 
 # =============================判断文件路径=============================
 
 GET_PATH() {
-    if [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 普通单文件下载，移动文件到设定的文件夹。
+    if [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 普通单文件下载，移动文件到设定的文件夹。
         SOURCE_PATH="${FILE_PATH}"
         TARGET_PATH="${TARGET_DIR}"
-    elif [ "${ANI_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 动画片目录中的单文件下载，保留目录结构移动
+    elif [ "${ANI_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 动画片目录中的单文件下载，保留目录结构移动
         SOURCE_PATH="${FILE_PATH}"
         TARGET_PATH="${TARGET_ANI_DIR}"
-    elif [ "${MOV_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 电影目录中的单文件下载，保留目录结构移动
+    elif [ "${MOV_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 电影目录中的单文件下载，保留目录结构移动
         SOURCE_PATH="${FILE_PATH}"
         TARGET_PATH="${TARGET_MOV_DIR}"
-    elif [ "${TVS_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 电视剧目录中的单文件下载，保留目录结构移动
+    elif [ "${TVS_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 电视剧目录中的单文件下载，保留目录结构移动
         SOURCE_PATH="${FILE_PATH}"
         TARGET_PATH="${TARGET_TVS_DIR}"
-    elif [ "${CUS_PATH}" = "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 自定义目录中的单文件下载，保留目录结构移动
+    elif [ "${CUS_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 自定义目录中的单文件下载，保留目录结构移动
         SOURCE_PATH="${FILE_PATH}"
         TARGET_PATH="${TARGET_CUS_DIR}"
-    elif [ "${ANI_PATH}" = "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（动画片文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
+    elif [ "${ANI_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -gt 1 ]; then # BT下载（动画片文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
         SOURCE_PATH="${CONTRAST_ANI_PATH}"
         TARGET_PATH="${TARGET_ANI_DIR}"
-    elif [ "${MOV_PATH}" = "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（电影文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
+    elif [ "${MOV_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -gt 1 ]; then # BT下载（电影文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
         SOURCE_PATH="${CONTRAST_MOV_PATH}"
         TARGET_PATH="${TARGET_MOV_DIR}"
-    elif [ "${TVS_PATH}" = "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（电视剧、综艺文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
+    elif [ "${TVS_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -gt 1 ]; then # BT下载（电视剧、综艺文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
         SOURCE_PATH="${CONTRAST_TVS_PATH}"
         TARGET_PATH="${TARGET_TVS_DIR}"
-    elif [ "${CUS_PATH}" = "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # 自定义路径下载（自定义路径文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
+    elif [ "${CUS_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -gt 1 ]; then # 自定义路径下载（自定义路径文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
         SOURCE_PATH="${CONTRAST_CUS_PATH}"
         TARGET_PATH="${TARGET_CUS_DIR}"
-    elif [ "${CONTRAST_PATH}" != "${FILE_PATH}" ] && [ $2 -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
+    elif [ "${CONTRAST_PATH}" != "${FILE_PATH}" ] && [ ${FILE_NUM} -gt 1 ]; then # BT下载（文件夹内文件数大于1），移动整个文件夹到设定的文件夹。
         SOURCE_PATH="${TOP_PATH}"
         TARGET_PATH_ORIGINAL="${TARGET_DIR}/${RELATIVE_PATH%/*}"
         TARGET_PATH="${TARGET_PATH_ORIGINAL%/*}"
-    elif [ "${CONTRAST_PATH}" != "${FILE_PATH}" ] && [ $2 -eq 1 ]; then # 第三方度盘工具下载（子文件夹或多级目录等情况下的单文件下载）、BT下载（文件夹内文件数等于1），移动文件到设定的文件夹下的相同路径文件夹。
+    elif [ "${CONTRAST_PATH}" != "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then # 第三方度盘工具下载（子文件夹或多级目录等情况下的单文件下载）、BT下载（文件夹内文件数等于1），移动文件到设定的文件夹下的相同路径文件夹。
         SOURCE_PATH="${TOP_PATH}"
         TARGET_PATH_ORIGINAL="${TARGET_DIR}/${RELATIVE_PATH%/*}"
         TARGET_PATH="${TARGET_PATH_ORIGINAL%/*}"
