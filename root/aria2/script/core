@@ -143,8 +143,8 @@ MOVE_FILE() {
     elif [ "${MOVE}" = "dmof" ] && [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then
         exit 0
     elif [ "${MOVE}" = "true" ] || [ "${MOVE}" = "dmof" ]; then
-        echo -e "${DATE_TIME} ${INFO} Start move files ..."
         TASK_INFO
+        echo -e "${DATE_TIME} ${INFO} Start move files ..."
         mkdir -p ${TARGET_PATH}
         mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
         MOVE_EXIT_CODE=$?
@@ -161,8 +161,8 @@ MOVE_FILE() {
 # =============================删除文件=============================
 
 DELETE_FILE() {
-    echo -e "${DATE_TIME} ${INFO} Download stop, start deleting files..."
     TASK_INFO
+    echo -e "${DATE_TIME} ${INFO} Download stop, start deleting files..."
     rm -rf "${SOURCE_PATH}"
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
@@ -177,8 +177,8 @@ DELETE_FILE() {
 # =============================回收站=============================
 
 MOVE_RECYCLE() {
-    echo -e "${DATE_TIME} ${INFO} Start move files to Recycling Bin..."
     TASK_INFO
+    echo -e "${DATE_TIME} ${INFO} Start move files to Recycling Bin..."
     mkdir -p ${TARGET_PATH}
     mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
     MOVE_EXIT_CODE=$?
