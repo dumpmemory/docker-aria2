@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 GET_BASE_PATH() {
     # Aria2下载目录
     DOWNLOAD_PATH='/downloads'
