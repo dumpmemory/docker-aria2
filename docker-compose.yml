@@ -2,7 +2,7 @@ version: "3"
 
 services:
   aria2:
-    image: superng6/aria2
+    image: superng6/aria2:dev
     container_name: aria2
     environment:
       - PUID=1026
@@ -10,15 +10,9 @@ services:
       - TZ=Asia/Shanghai
       - SECRET=yourtoken
       - CACHE=512M
-      - UpdateTracker=true
+      - UT=true
       - QUIET=true
-      - RECYCLE=true
-      - MOVE=true
       - SMD=false
-      - ANIDIR=ani
-      - MOVDIR=movies
-      - TVDIR=tv
-      - CUSDIR=cusdir
     volumes:
       - /path/to/appdata/config:/config
       - /path/to/downloads:/downloads

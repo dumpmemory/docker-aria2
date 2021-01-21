@@ -72,11 +72,26 @@ docker pull superng6/aria2:webui-latest
 
 
 # Changelogs
+## 2021/01/21
+- 破坏性更新
+ - 1、重构脚本，减少维护工作量，方便后续扩展功能
+ - 2、核心功能选项单独列出，方便设置
+ - 3、新增`settings.conf`，自定义二级目录、任务处理方式等在此设置
+ - 4、`MOVE`、`内容过滤`等选项，移至`settings.conf`，建议删除容器重新配置
+
+## 2021/01/16
+
+      1、新增可选项`移动文件前，删除该下载的任务中的空文件夹`--`DET=true`，开启该选项需要同时开启`CF=true`、`MOVE=true`或`MOVE=dmof`
+        本选项隶属于文件过滤的附加选项
+
 ## 2020/09/25
 
       1、新增任务文件过滤，由于aria2自身限制，只能在下载后才能移出文件
          请在/config/文件过滤.conf中设置
          开关`CF=true`，在同时开启下载后移动文件选项时生效
+
+<details>
+   <summary>Change Log History</summary>
 
 ## 2020/07/27
 
@@ -95,9 +110,6 @@ docker pull superng6/aria2:webui-latest
       1、aria2-with-webui分支添加aria2 webui ariang（真不知道有啥用，但是好多人就是喜欢容器里也有webui）
       2、内置AriaNg-1.1.6-AllInOne，如果想替换为其他webui或其他版本ariang，挂载`/www`，把webui扔进去就可以了
       3、使用darkhttpd，轻量化网页服务器，默认webui端口为`80`
-
-<details>
-   <summary>Change Log History</summary>
 
 ## 2020/05/20
 
@@ -276,20 +288,44 @@ token现在不用写在配置文件里了，使用2019.10.11日前版本的用�
 | `-e CACHE=1024M` |Aria2磁盘缓存配置|
 | `-e UT=true` |启动容器时更新trackers|
 | `-e RUT=true` |每天凌晨3点更新trackers|
-| `-e RECYCLE=true` |启用回收站|
-| `-e MOVE=true` |下载完成文件后移动文件或文件夹|
-| `-e MOVE=dmof` |下载任务为单个文件则不移动，若为文件夹则移动|
 | `-e SMD=true` |保存磁力链接为种子文件|
-| `-e ANIDIR=ani` |动画片分类目录名称(支持中文名称)|
-| `-e MOVDIR=movies` |电影分类目录名称(支持中文名称)|
-| `-e TVDIR=tv` |电视分类目录名称(支持中文名称)|
-| `-e CUSDIR=cusdir` |自定义分类目录名称(支持中文名称)|
 | `-e FA=` |磁盘预分配模式`none`,`falloc`,`trunc`,`prealloc`|
-| `-e CF=true` |文件过滤，在同时开启下载后移动文件选项时生效|
 | `-p 6800:6800` |Aria2 RPC连接端口|
 | `-p 6881:6881` |Aria2 tcp下载端口|
 | `-p 6881:6881/udp` |Aria2 p2p udp下载端口|
 | `--restart unless-stopped` |自动重启容器|
+
+
+### `/config/settings.conf` 配置说明
+````
+## docker aria2 功能设置 ##
+# 配置文件为本项目的自定义设置选项
+# 无需重启容器,即刻生效
+
+# 删除任务，`delete`为删除任务后删除文件，`recycle`为删除文件至回收站，`n`只删除.aria2文件
+remove-task=delete
+
+# 自定义分类目录；请不要添加斜杠`/`和增加自定义目录数量。推荐下载对应类型的任务到对应目录
+# 由于aria2自身限制，无法获得自定义二级目录地址，只能通过这种手动预设自定义二级目录地址的方式
+ani-dir=动画
+mov-dir=电影
+tvs-dir=电视剧
+cus-dir=自定义
+
+# 下载完成后执行操作选项，默认`false`
+# `true`，下载完成后保留目录结构移动
+# `dmof`非自定义目录任务，单文件，不执行移动操作。自定义目录、单文件，保留目录结构移动（推荐）
+move=false
+
+# 文件过滤，任务下载完成后删除不需要到文件内容，`false`、`true`
+# 无法再下载前取消不要的文件，aria2自身限制
+content-filter=false
+
+# 删除空文件夹，默认`true`，需要开启文件过滤功能才能生效
+# 开启内容过滤后，可能会产生空文件夹，开启DET后可以删除当前任务中的空文件夹
+delete-empty-dir=true
+
+````
 
 ### 如果是使用aria2自带的https链接需要注意以下几点
 1、`ADDRESS=127.0.0.1`请修改地址为你的aria2地址(不是aria2自带https不用改)
@@ -314,13 +350,7 @@ docker create \
   -e RUT=true \
   -e FA=falloc \
   -e QUIET=true \
-  -e RECYCLE=true \
-  -e MOVE=true \
   -e SMD=false \
-  -e ANIDIR=ani \
-  -e MOVDIR=movies \
-  -e TVDIR=tv \
-  -e CUSDIR=cusdir \
   -p 6881:6881 \
   -p 6881:6881/udp \
   -p 6800:6800 \
@@ -335,7 +365,7 @@ version: "3"
 
 services:
   aria2:
-    image: superng6/aria2
+    image: superng6/aria2:dev
     container_name: aria2
     environment:
       - PUID=1026
@@ -344,16 +374,8 @@ services:
       - SECRET=yourtoken
       - CACHE=512M
       - UT=true
-      - RUT=true
       - QUIET=true
-      - FA=falloc
-      - RECYCLE=true
-      - MOVE=true
       - SMD=false
-      - ANIDIR=ani
-      - MOVDIR=movies
-      - TVDIR=tv
-      - CUSDIR=cusdir
     volumes:
       - /path/to/appdata/config:/config
       - /path/to/downloads:/downloads
