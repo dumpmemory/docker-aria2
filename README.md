@@ -227,11 +227,18 @@ https://hub.docker.com/r/superng6/ariang
 
 ## 挂载路径
 ``/config`` ``/downloads``
-## 默认关闭SSL，如需需要请手动开启
+## 默认关闭SSL，如需要请手动开启
 之所以默认关闭SSL(建议开启)，是因为如果开启，又没有配置证书，会导致aria2启动失败，所以如果需要开启请手动编辑aria2.conf
 证书请放在``/config/ssl``目录下
 删掉24,26,28行的``#``号
 ![IknUvK](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/IknUvK.jpg)
+
+### 如果是使用aria2自带的https链接需要注意以下几点
+1、`ADDRESS=127.0.0.1`请修改地址为你的aria2地址(不是aria2自带https不用改)
+   `PORT=6800`请修改地址为你的aria2 rpc端口(如果修改conf文件里的端口则需要变更，但是应该没有人会改)  
+2、推荐使用nginx反向代理aria2 rpc 实现https，这样可以开启http2和gzip以提升性能
+   并且可以直接使用rpc更新tracker，不需要进行任何的多余设置
+
 ## 修改RPC token
 填写你自己的token,越长越好，建议使用生成的UUID
 ![ByRMgP](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/ByRMgP.jpg)
@@ -326,12 +333,6 @@ content-filter=false
 delete-empty-dir=true
 
 ````
-
-### 如果是使用aria2自带的https链接需要注意以下几点
-1、`ADDRESS=127.0.0.1`请修改地址为你的aria2地址(不是aria2自带https不用改)
-   `PORT=6800`请修改地址为你的aria2 rpc端口(如果修改conf文件里的端口则需要变更，但是应该没有人会改)  
-2、推荐使用nginx反向代理aria2 rpc 实现https，这样可以开启http2和gzip以提升性能
-   并且可以直接使用rpc更新tracker，不需要进行任何的多余设置
 
 ## Linux
 
