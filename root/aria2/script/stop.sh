@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
 
+. "$(dirname $0)/settings"
+. "$(dirname $0)/core"
+
 FILE_PATH=$3
 FILE_NUM=$2
 
-CHECK_CORE_FILE() {
-    CORE_FILE="$(dirname $0)/core"
-    if [[ -f "${CORE_FILE}" ]]; then
-        . "${CORE_FILE}"
-    else
-        echo "!!! core file does not exist !!!"
-        exit 1
-    fi
-}
-
-CHECK_CORE_FILE
+LOAD_SETTINGS_CONF
 
 GET_BASE_PATH
 COMPLETED_PATH
