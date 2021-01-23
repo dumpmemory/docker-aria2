@@ -42,4 +42,4 @@ jobs:
           push: true
           tags: |
             superng6/aria2:dev-${{ steps.set-version.outputs.version }}
-
+            superng6/aria2:dev

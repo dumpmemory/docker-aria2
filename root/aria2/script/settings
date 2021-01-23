@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-
-SCRIPT_CONF="/config/settings.conf"
-
 LOAD_SETTINGS_CONF() {
+    SCRIPT_CONF="/config/settings.conf"
     RMTASK="$(grep ^remove-task "${SCRIPT_CONF}" | cut -d= -f2-)"
     ANIDIR="$(grep ^ani-dir "${SCRIPT_CONF}" | cut -d= -f2-)"
     MOVDIR="$(grep ^mov-dir "${SCRIPT_CONF}" | cut -d= -f2-)"

@@ -109,8 +109,8 @@ DELETE_EXCLUDE_FILE() {
 
 RM_ARIA2() {
     if [ -e "${SOURCE_PATH}.aria2" ]; then
-        echo -e "${DATE_TIME} ${INFO} deleting ${SOURCE_PATH}.aria2"
-        rm -vf "${SOURCE_PATH}.aria2"
+        rm -f "${SOURCE_PATH}.aria2"
+        echo -e "${DATE_TIME} ${INFO} deleted ${SOURCE_PATH}.aria2"
     fi
 }
 
