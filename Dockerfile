@@ -11,7 +11,7 @@ FROM lsiobase/alpine:3.12
 # set label
 LABEL maintainer="NG6"
 ENV TZ=Asia/Shanghai UT=true SECRET=yourtoken CACHE=128M QUIET=true \
-SMD=false RUT=true ADDRESS=127.0.0.1 PORT=6800 \
+SMD=false RUT=true SETTING=true ADDRESS=127.0.0.1 PORT=6800 \
 PUID=1026 PGID=100
 
 # copy local files && aria2c

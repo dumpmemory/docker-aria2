@@ -13,12 +13,13 @@ services:
       - UT=true
       - QUIET=true
       - SMD=false
+      - SETTING=true
     volumes:
-      - /path/to/appdata/config:/config
-      - /path/to/downloads:/downloads
+      - $PWD/config:/config
+      - $PWD/downloads:/downloads
     ports:
+      - 6800:6800
       - 6881:6881
       - 6881:6881/udp
-      - 6800:6800
-    restart: unless-stopped   
+    restart: unless-stopped
     
