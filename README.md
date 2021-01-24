@@ -30,6 +30,7 @@ __当前的镜像或多或少都有以下几点不符合的我的需求__
 - 做了usermapping，使用你自己的账户权限来运行，这点对于群辉来说尤其重要
 - 纯aria2，没有包含多于的服务
 - 超小镜像体积 10.77 MB
+- 目前唯一一个可以自定义任意二级目录的docker aria2镜像（后处理脚本正确执行，灵感来自zwc456baby提出的递归实现）
 - 开放了BT下载DTH监听端口、BT下载监听端口（TCP/UDP 6881），加快下载速度
 - 默认开启DHT并且创建了DHT文件，加速下载
 - 包含了下载完成后自动删除.aria2文件脚本
@@ -72,12 +73,14 @@ docker pull superng6/aria2:webui-latest
 
 
 # Changelogs
-## 2021/01/21
+## 2021/01/23
 - 破坏性更新
    - 1、重构脚本，减少维护工作量，方便后续扩展功能
    - 2、核心功能选项单独列出，方便设置
-   - 3、新增`settings.conf`，自定义二级目录、任务处理方式等在此设置
-   - 4、`MOVE`、`内容过滤`等选项，移至`settings.conf`，建议删除容器重新配置
+   - 3、新增`setting.conf`，docker aria2 扩展功能设置
+   - 4、`MOVE`、`内容过滤`、`删除空文件夹`、`回收站`等选项，移至`/config/setting.conf`，建议删除容器重新配置
+
+2、 可以自定义任意二级目录，不要像之前那样手动预设二级目录里（后处理脚本正确运行，感谢）
 
 ## 2021/01/16
 
@@ -303,7 +306,8 @@ token现在不用写在配置文件里了，使用2019.10.11日前版本的用�
 | `--restart unless-stopped` |自动重启容器|
 
 
-### `/config/settings.conf` 配置说明
+### `/config/setting.conf` 配置说明(推荐使用)
+推荐使用`setting.conf`进行本镜像附加功能选项设置
 ````
 ## docker aria2 功能设置 ##
 # 配置文件为本项目的自定义设置选项
@@ -312,13 +316,6 @@ token现在不用写在配置文件里了，使用2019.10.11日前版本的用�
 
 # 删除任务，`delete`为删除任务后删除文件，`recycle`为删除文件至回收站，`n`只删除.aria2文件
 remove-task=delete
-
-# 自定义分类目录；请不要添加斜杠`/`和增加自定义目录数量。推荐下载对应类型的任务到对应目录
-# 由于aria2自身限制，无法获得自定义二级目录地址，只能通过这种手动预设自定义二级目录地址的方式
-ani-dir=动画
-mov-dir=电影
-tvs-dir=电视剧
-cus-dir=自定义
 
 # 下载完成后执行操作选项，默认`false`
 # `true`，下载完成后保留目录结构移动
@@ -332,7 +329,6 @@ content-filter=false
 # 删除空文件夹，默认`true`，需要开启文件过滤功能才能生效
 # 开启内容过滤后，可能会产生空文件夹，开启`DET`选项后可以删除当前任务中的空文件夹
 delete-empty-dir=true
-
 
 ````
 
@@ -357,8 +353,8 @@ docker create \
   -p 6881:6881 \
   -p 6881:6881/udp \
   -p 6800:6800 \
-  -v /path/to/appdata/config:/config \
-  -v /path/to/downloads:/downloads \
+  -v $PWD/config:/config \
+  -v $PWD/downloads:/downloads \
   --restart unless-stopped \
   superng6/aria2
   ````
@@ -368,7 +364,7 @@ version: "3"
 
 services:
   aria2:
-    image: superng6/aria2:dev
+    image: superng6/aria2
     container_name: aria2
     environment:
       - PUID=1026
@@ -380,13 +376,13 @@ services:
       - QUIET=true
       - SMD=false
     volumes:
-      - /path/to/appdata/config:/config
-      - /path/to/downloads:/downloads
+      - $PWD/config:/config
+      - $PWD/downloads:/downloads
     ports:
+      - 6800:6800
       - 6881:6881
       - 6881:6881/udp
-      - 6800:6800
-    restart: unless-stopped   
+    restart: unless-stopped 
 ````
 
 # Preview
