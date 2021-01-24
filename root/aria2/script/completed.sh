@@ -6,8 +6,11 @@
 FILE_PATH=$3
 FILE_NUM=$2
 
-GET_BASE_PATH
-COMPLETED_PATH
-GET_PATH
-MOVE_FILE
-exit 0
+if [ "${FILE_NUM}" -eq 0 ]; then
+    exit 0
+else
+    GET_BASE_PATH
+    COMPLETED_PATH
+    GET_PATH
+    MOVE_FILE
+fi
