@@ -44,19 +44,19 @@ WARRING="[${YELLOW_FONT_PREFIX}WARRING${FONT_COLOR_SUFFIX}]"
 # ============================时间==============================
 
 DATE_TIME() {
-    date +"%m/%d %H:%M:%S"
+    date +"%Y/%m/%d %H:%M:%S"
 }
 
 # ==========================任务信息===============================
 
 TASK_INFO() {
     echo -e "
--------------------------- [${YELLOW_FONT_PREFIX}TASK INFO${FONT_COLOR_SUFFIX}] --------------------------
+-------------------------- [${YELLOW_FONT_PREFIX}TASK INFO ${TASK_TAYPE} ${FONT_COLOR_SUFFIX}] --------------------------
 ${LIGHT_PURPLE_FONT_PREFIX}Download path:${FONT_COLOR_SUFFIX} ${DOWNLOAD_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}File path:${FONT_COLOR_SUFFIX} ${FILE_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}Task path:${FONT_COLOR_SUFFIX} ${SOURCE_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}Target path:${FONT_COLOR_SUFFIX} ${TARGET_PATH}
--------------------------- [${YELLOW_FONT_PREFIX}TASK INFO${FONT_COLOR_SUFFIX}] --------------------------
+-------------------------- [${YELLOW_FONT_PREFIX}TASK INFO ${TASK_TAYPE} ${FONT_COLOR_SUFFIX}] --------------------------
 "
 }
 
@@ -80,7 +80,7 @@ LOAD_SCRIPT_CONF() {
 
 DELETE_EXCLUDE_FILE() {
     if [[ ${FILE_NUM} -gt 1 ]] && [[ -n ${MIN_SIZE} || -n ${INCLUDE_FILE} || -n ${EXCLUDE_FILE} ]]; then
-        echo -e "${DATE_TIME} ${INFO} Deleting excluded files ..."
+        echo -e "$(DATE_TIME) ${INFO} Deleting excluded files ..."
         [[ -n ${MIN_SIZE} ]] && find "${SOURCE_PATH}" -type f -size -${MIN_SIZE} -print0 | xargs -0 rm -vf | tee -a ${CF_LOG_PATH}
         [[ -n ${EXCLUDE_FILE} ]] && find "${SOURCE_PATH}" -type f -regextype posix-extended -iregex ".*\.(${EXCLUDE_FILE})" -print0 | xargs -0 rm -vf | tee -a ${CF_LOG_PATH}
         [[ -n ${INCLUDE_FILE} ]] && find "${SOURCE_PATH}" -type f -regextype posix-extended ! -iregex ".*\.(${INCLUDE_FILE})" -print0 | xargs -0 rm -vf | tee -a ${CF_LOG_PATH}
@@ -92,7 +92,7 @@ DELETE_EXCLUDE_FILE() {
 RM_ARIA2() {
     if [ -e "${SOURCE_PATH}.aria2" ]; then
         rm -f "${SOURCE_PATH}.aria2"
-        echo -e "${DATE_TIME} ${INFO} deleted ${SOURCE_PATH}.aria2"
+        echo -e "$(DATE_TIME) ${INFO} deleted ${SOURCE_PATH}.aria2"
     fi
 }
 
@@ -100,7 +100,7 @@ RM_ARIA2() {
 
 DELETE_EMPTY_DIR() {
     if [[ "${DET}" = "true" ]]; then
-        echo -e "${DATE_TIME} ${INFO} Deleting empty directory ..."
+        echo -e "$(DATE_TIME) ${INFO} Deleting empty directory ..."
         find "${SOURCE_PATH}" -depth -type d -empty -exec rm -vrf {} \ ;
     fi
 }
@@ -110,7 +110,7 @@ DELETE_EMPTY_DIR() {
 CLEAN_UP() {
     RM_ARIA2
     if [ "$CF" == "true" ]; then
-        echo -e "${DATE_TIME} ${INFO} 被过滤文件的任务路径: ${SOURCE_PATH}" | tee -a ${CF_LOG_PATH}
+        echo -e "$(DATE_TIME) ${INFO} 被过滤文件的任务路径: ${SOURCE_PATH}" | tee -a ${CF_LOG_PATH}
         LOAD_SCRIPT_CONF
         DELETE_EXCLUDE_FILE
         DELETE_EMPTY_DIR
@@ -121,21 +121,25 @@ CLEAN_UP() {
 
 MOVE_FILE() {
     if [ "${MOVE}" = "false" ]; then
+        RM_ARIA2
         exit 0
     elif [ "${MOVE}" = "dmof" ] && [ "${CONTRAST_PATH}" = "${FILE_PATH}" ] && [ ${FILE_NUM} -eq 1 ]; then
+        RM_ARIA2
         exit 0
     elif [ "${MOVE}" = "true" ] || [ "${MOVE}" = "dmof" ]; then
+        TASK_TAYPE=": MOVE"
         TASK_INFO
-        echo -e "${DATE_TIME} ${INFO} Start move files ..."
+        CLEAN_UP
+        echo -e "$(DATE_TIME) ${INFO} Start move files ..."
         mkdir -p ${TARGET_PATH}
         mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
         MOVE_EXIT_CODE=$?
         if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-            echo -e "${DATE_TIME} ${INFO} Move done: ${SOURCE_PATH} -> ${TARGET_PATH}"
-            [ ${MOVE_LOG} ] && echo -e "${DATE_TIME} [INFO] Move done: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${MOVE_LOG}
+            echo -e "$(DATE_TIME) ${INFO} Move done: ${SOURCE_PATH} -> ${TARGET_PATH}"
+            [ ${MOVE_LOG} ] && echo -e "$(DATE_TIME) [INFO] Move done: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${MOVE_LOG}
         else
-            echo -e "${DATE_TIME} ${ERROR} Move failed: ${SOURCE_PATH}"
-            [ ${MOVE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Move failed: ${SOURCE_PATH}" >>${MOVE_LOG}
+            echo -e "$(DATE_TIME) ${ERROR} Move failed: ${SOURCE_PATH}"
+            [ ${MOVE_LOG} ] && echo -e "$(DATE_TIME) [ERROR] Move failed: ${SOURCE_PATH}" >>${MOVE_LOG}
         fi
     fi
 }
@@ -144,32 +148,33 @@ MOVE_FILE() {
 
 DELETE_FILE() {
     DELETE_INFO
-    echo -e "${DATE_TIME} ${INFO} Download stop, start deleting files..."
+    echo -e "$(DATE_TIME) ${INFO} Download stop, start deleting files..."
     rm -rf "${SOURCE_PATH}"
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-        echo -e "${DATE_TIME} ${INFO} deleted files: ${SOURCE_PATH}"
-        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [INFO] File deleted successfully: ${SOURCE_PATH}" >>${DELETE_LOG}
+        echo -e "$(DATE_TIME) ${INFO} deleted files: ${SOURCE_PATH}"
+        [ ${DELETE_LOG} ] && echo -e "$(DATE_TIME) [INFO] File deleted successfully: ${SOURCE_PATH}" >>${DELETE_LOG}
     else
-        echo -e "${DATE_TIME} ${ERROR} delete failed: ${SOURCE_PATH}"
-        [ ${DELETE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Failed to delete file: ${SOURCE_PATH}" >>${DELETE_LOG}
+        echo -e "$(DATE_TIME) ${ERROR} delete failed: ${SOURCE_PATH}"
+        [ ${DELETE_LOG} ] && echo -e "$(DATE_TIME) [ERROR] Failed to delete file: ${SOURCE_PATH}" >>${DELETE_LOG}
     fi
 }
 
 # =============================回收站=============================
 
 MOVE_RECYCLE() {
+    TASK_TAYPE=": RECYCLE"
     TASK_INFO
-    echo -e "${DATE_TIME} ${INFO} Start move files to Recycling Bin..."
+    echo -e "$(DATE_TIME) ${INFO} Start move files to Recycling Bin..."
     mkdir -p ${TARGET_PATH}
     mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-        echo -e "${DATE_TIME} ${INFO} Move done: ${SOURCE_PATH} -> ${TARGET_PATH}"
-        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [INFO] Successfully moved to the Recycle Bin: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${RECYCLE_LOG}
+        echo -e "$(DATE_TIME) ${INFO} Move done: ${SOURCE_PATH} -> ${TARGET_PATH}"
+        [ ${RECYCLE_LOG} ] && echo -e "$(DATE_TIME) [INFO] Successfully moved to the Recycle Bin: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${RECYCLE_LOG}
     else
-        echo -e "${DATE_TIME} ${ERROR} Move failed: ${SOURCE_PATH}"
-        [ ${RECYCLE_LOG} ] && echo -e "${DATE_TIME} [ERROR] Failed to move to the Recycle Bin: ${SOURCE_PATH}" >>${RECYCLE_LOG}
+        echo -e "$(DATE_TIME) ${ERROR} Move failed: ${SOURCE_PATH}"
+        [ ${RECYCLE_LOG} ] && echo -e "$(DATE_TIME) [ERROR] Failed to move to the Recycle Bin: ${SOURCE_PATH}" >>${RECYCLE_LOG}
     fi
 }
 
@@ -181,11 +186,9 @@ GET_PATH() {
             echo -e " Task path lookup failed: ${FILE_PATH} "
             return
         fi
-        # 执行文件检测
         if [ -e "${SOURCE_PATH}.aria2" ]; then
             return
         fi
-        # 末尾递归调用本方法
         SOURCE_PATH=$(dirname ${SOURCE_PATH})
         findTaskPath
     }
@@ -193,7 +196,7 @@ GET_PATH() {
     PARENT_PATH=$(dirname ${FILE_PATH})
 
     if [ "${FILE_NUM}" -eq 0 ]; then
-        echo -e " ${DATE_TIME} ${ERROR} Task error "
+        echo -e " $(DATE_TIME) ${ERROR} Task error "
         exit 0
     # 有些http小文件不会产生.aria2
     elif [ "${FILE_NUM}" -eq 1 ] && [ ! -e "${FILE_PATH}.aria2" ]; then
@@ -209,5 +212,9 @@ GET_PATH() {
 
     RELATIVE_PATH=${SOURCE_PATH#${DOWNLOAD_PATH}/}
     TARGET_PATH=${TARGET_DIR}/$(dirname ${RELATIVE_PATH})
+    # /downloads根目录会出现 /.
+    if [ "${TARGET_PATH}" == "${TARGET_DIR}/." ]; then
+        TARGET_PATH="${TARGET_DIR}"
+    fi
 }
 
