@@ -130,7 +130,7 @@ MOVE_FILE() {
         TASK_TAYPE=": MOVE"
         TASK_INFO
         CLEAN_UP
-        echo -e "$(DATE_TIME) ${INFO} Start move files ..."
+        echo -e "$(DATE_TIME) ${INFO} Start move files to the destination folder ..."
         mkdir -p ${TARGET_PATH}
         mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
         MOVE_EXIT_CODE=$?
