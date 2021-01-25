@@ -160,7 +160,7 @@ on-download-complete=/aria2/script/move.sh
 # 显示下载任务信息
 #on-download-pause=/root/.aria2/info.sh
 # 下载开始后执行的命令
-#on-download-start=
+on-download-start=/aria2/script/start.sh
 
 ## BT服务器 ##
 bt-tracker=
