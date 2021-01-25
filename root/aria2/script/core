@@ -9,6 +9,7 @@ GET_BASE_PATH() {
     MOVE_LOG="/config/move.log"
     DELETE_LOG="/config/delete.log"
     RECYCLE_LOG="/config/recycle.log"
+    TASK_HISTORY="/tmp/task-history"
 
     # ============================================================
 
@@ -217,8 +218,25 @@ GET_PATH() {
     if [ "${TARGET_PATH}" == "${TARGET_DIR}/." ]; then
         TARGET_PATH="${TARGET_DIR}"
     fi
+    # 出现 // 说明路径获取失败，为防止后续操作继续执行返回 error
     if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
         GET_PATH_INFO="error"
     fi
 }
- 
+
+GET_FINAL_PATH() { 
+    SOURCE_PATH="$(tac "${TASK_HISTORY}" | grep ^"${TASK_GID}" | cut -d= -f2- | head -1 )"
+    if [ ! -n "${SOURCE_PATH}" ]; then
+        GET_PATH_INFO="error"
+    else
+        RELATIVE_PATH="${SOURCE_PATH#${DOWNLOAD_PATH}/}"
+        TARGET_PATH="${TARGET_DIR}/$(dirname "${RELATIVE_PATH}")"
+        # /downloads根目录下载会出现 /.
+        if [ "${TARGET_PATH}" == "${TARGET_DIR}/." ]; then
+            TARGET_PATH="${TARGET_DIR}"
+        fi
+        if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
+            GET_PATH_INFO="error"
+        fi
+    fi
+}
