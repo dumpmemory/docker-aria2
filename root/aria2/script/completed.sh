@@ -14,7 +14,7 @@ GET_FINAL_PATH
 if [ "${FILE_NUM}" -eq 0 ]; then
     exit 0
 elif [ "${GET_PATH_INFO}" = "error" ]; then
-    echo -e "$(DATE_TIME) ${ERROR} GET TASK PATH ERROR!"
+    echo -e "$(DATE_TIME) ${ERROR} GID:${TASK_GID} GET TASK PATH ERROR!"
     exit 1
 else
     MOVE_FILE

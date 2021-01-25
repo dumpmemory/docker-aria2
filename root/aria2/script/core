@@ -186,6 +186,9 @@ MOVE_RECYCLE() {
 
 
 GET_PATH() {
+    # 路径加""防止转译问题，导致路径出错
+    PARENT_PATH="$(dirname "${FILE_PATH}")"
+
     function findTaskPath () {
         if [ "${SOURCE_PATH}"x == "${DOWNLOAD_PATH}"x -o "${SOURCE_PATH}"x == "/"x ]; then
             echo -e " Task path lookup failed: ${FILE_PATH} "
@@ -197,8 +200,6 @@ GET_PATH() {
         SOURCE_PATH="$(dirname "${SOURCE_PATH}")"
         findTaskPath
     }
-    # 路径加""防止转译问题，导致路径出错
-    PARENT_PATH="$(dirname "${FILE_PATH}")"
 
     # 有些http下载的小文件不会产生.aria2
     if [ "${FILE_NUM}" -eq 1 ] && [ ! -e "${FILE_PATH}.aria2" ] && [ ! -e "${PARENT_PATH}.aria2" ] ; then
@@ -225,18 +226,21 @@ GET_PATH() {
 }
 
 GET_FINAL_PATH() { 
-    SOURCE_PATH="$(tac "${TASK_HISTORY}" | grep ^"${TASK_GID}" | cut -d= -f2- | head -1 )"
-    if [ ! -n "${SOURCE_PATH}" ]; then
-        GET_PATH_INFO="error"
-    else
-        RELATIVE_PATH="${SOURCE_PATH#${DOWNLOAD_PATH}/}"
-        TARGET_PATH="${TARGET_DIR}/$(dirname "${RELATIVE_PATH}")"
-        # /downloads根目录下载会出现 /.
-        if [ "${TARGET_PATH}" == "${TARGET_DIR}/." ]; then
-            TARGET_PATH="${TARGET_DIR}"
-        fi
-        if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
+    if [ "${FILE_NUM}" -eq 1 ]; then
+        SOURCE_PATH="${FILE_PATH}"
+    elif [ -e "${FILE_NUM}" -gt 1 ]; then
+        SOURCE_PATH="$(tac "${TASK_HISTORY}" | grep ^"${TASK_GID}" | cut -d= -f2- | head -1 )"
+        if [ ! -n "${SOURCE_PATH}" ] || [ ! -n "${FILE_PATH}" ]; then
             GET_PATH_INFO="error"
         fi
+    fi
+    RELATIVE_PATH="${SOURCE_PATH#${DOWNLOAD_PATH}/}"
+    TARGET_PATH="${TARGET_DIR}/$(dirname "${RELATIVE_PATH}")"
+    # /downloads根目录下载会出现 /.
+    if [ "${TARGET_PATH}" == "${TARGET_DIR}/." ]; then
+        TARGET_PATH="${TARGET_DIR}"
+    fi
+    if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
+        GET_PATH_INFO="error"
     fi
 }
