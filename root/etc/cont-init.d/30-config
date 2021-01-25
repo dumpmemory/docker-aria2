@@ -1,58 +1,43 @@
 #!/usr/bin/with-contenv bash
 
-# make folders
-mkdir -p \
-	/config/ssl \
-  /downloads/completed \
-  /downloads/recycle
+# option switch
+sed -i 's@^\(on-download-stop=\).*@\1/aria2/script/stop.sh@' /config/aria2.conf
+sed -i 's@^\(on-download-complete=\).*@\1/aria2/script/completed.sh@' /config/aria2.conf
+sed -i 's@^\(on-download-start=\).*@\1/aria2/script/start.sh@' /config/aria2.conf
 
-# copy files
-if [[ ! -e /config/aria2.conf ]]
+# bt-save-metadata
+if [[ "$SMD" = "true" ]]
 then
-  cp /aria2/conf/aria2.conf.default /config/aria2.conf
+    sed -i 's@^\(bt-save-metadata=\).*@\1true@' /config/aria2.conf
+else
+    sed -i 's@^\(bt-save-metadata=\).*@\1false@' /config/aria2.conf
 fi
 
-if [[ ! -e /config/setting.conf ]]
+# file-allocation
+if [[ "$FA" = "falloc" ]]
 then
-  cp /aria2/conf/setting.conf /config/setting.conf
+    sed -i 's@^\(file-allocation=\).*@\1falloc@' /config/aria2.conf
+elif [[ "$FA" = "trunc" ]]
+then
+    sed -i 's@^\(file-allocation=\).*@\1trunc@' /config/aria2.conf
+elif [[ "$FA" = "prealloc" ]]
+then
+    sed -i 's@^\(file-allocation=\).*@\1prealloc@' /config/aria2.conf
+else
+    sed -i 's@^\(file-allocation=\).*@\1none@' /config/aria2.conf 
 fi
 
-if [[ ! -e /config/文件过滤.conf ]]
+# auto updatetracker
+if [ "$UT" == "true" ]
 then
-  cp /aria2/conf/文件过滤.conf /config/文件过滤.conf
+  bash /aria2/script/tracker.sh
 fi
 
-if [[ ! -e /config/aria2.session ]]
+# rpc update tracker
+if [ "$RUT" == "true" ]
 then
-  touch /config/aria2.session
-fi
-
-if [[ ! -e /config/dht.dat ]]
-then
-  touch /config/dht.dat
-fi
-
-if [[ ! -e /config/move.log ]]
-then
-  touch /config/move.log
-fi
-
-if [[ ! -e /config/recycle.log ]]
-then
-  touch /config/recycle.log
-fi
-
-if [[ ! -e /config/delete.log ]]
-then
-  touch /config/delete.log
-fi
-
-if [[ ! -e /config/文件过滤日志.log ]]
-then
-  touch /config/文件过滤日志.log
-fi
-
-if [[ ! -e /tmp/task-history ]]
-then
-  touch /tmp/task-history
+  cp /aria2/conf/rpc-tracker1 /etc/crontabs/root
+  /usr/sbin/crond
+else
+  cp /aria2/conf/rpc-tracker0 /etc/crontabs/root
 fi
