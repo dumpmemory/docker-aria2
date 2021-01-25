@@ -226,14 +226,19 @@ GET_PATH() {
 }
 
 GET_FINAL_PATH() { 
-    if [ "${FILE_NUM}" -eq 1 ]; then
+    if [ ! -n "${FILE_PATH}" ]; then
+        GET_PATH_INFO="error"
+        exit 1
+    elif [ "${FILE_NUM}" -eq 1 ]; then
         SOURCE_PATH="${FILE_PATH}"
     elif [ -e "${FILE_NUM}" -gt 1 ]; then
         SOURCE_PATH="$(tac "${TASK_HISTORY}" | grep ^"${TASK_GID}" | cut -d= -f2- | head -1 )"
-        if [ ! -n "${SOURCE_PATH}" ] || [ ! -n "${FILE_PATH}" ]; then
+        if [ ! -n "${SOURCE_PATH}" ]; then
             GET_PATH_INFO="error"
+            exit 1
         fi
     fi
+
     RELATIVE_PATH="${SOURCE_PATH#${DOWNLOAD_PATH}/}"
     TARGET_PATH="${TARGET_DIR}/$(dirname "${RELATIVE_PATH}")"
     # /downloads根目录下载会出现 /.
@@ -242,5 +247,6 @@ GET_FINAL_PATH() {
     fi
     if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
         GET_PATH_INFO="error"
+        exit 1
     fi
 }
