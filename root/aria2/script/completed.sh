@@ -6,12 +6,11 @@
 TASK_GID=$1
 FILE_NUM=$2
 FILE_PATH=$3
-
 GET_BASE_PATH
 COMPLETED_PATH
 GET_FINAL_PATH
 
-if [ "${FILE_NUM}" -eq 0 ]; then
+if [ "${FILE_NUM}" -eq 0 ] || [ ! -n "${FILE_PATH}" ]; then
     exit 0
 elif [ "${GET_PATH_INFO}" = "error" ]; then
     echo -e "$(DATE_TIME) ${ERROR} GID:${TASK_GID} GET TASK PATH ERROR!"
