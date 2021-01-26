@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+RPC_TASK_INFO() {
+    if [[ "${SECRET}" ]]; then
+        RPC_PAYLOAD='{"jsonrpc":"2.0","method":"aria2.tellStatus","id":"NG6","params":["token:'${SECRET}'","'${TASK_GID}'"]}'
+    else
+        RPC_PAYLOAD='{"jsonrpc":"2.0","method":"aria2.tellStatus","id":"NG6","params":["'${TASK_GID}'"]}'
+    fi
+    curl "${RPC_ADDRESS}" -fsSd "${RPC_PAYLOAD}" || curl "https://${RPC_ADDRESS}" -kfsSd "${RPC_PAYLOAD}"
+}
+
+GET_TASK_INFO() {
+    RPC_ADDRESS="localhost:${PORT}/jsonrpc"
+    RPC_RESULT="$(RPC_TASK_INFO)"
+}
+
+# ======================================================================
+
+GET_TASK_STATUS() {
+    GET_TASK_INFO
+    TASK_STATUS=$(cat "${RPC_RESULT}" | jq -r '.result.status')
+    echo "TASK_STATUS=${TASK_STATUS}"
+    [[ -z "${TASK_STATUS}" || "${TASK_STATUS}" = "null" ]] && {
+        echo "${RPC_RESULT}" | jq '.result'
+        echo -e "$(DATE_TIME) ${ERROR} Failed to get task status!"
+        exit 1
+    }
+}
+
+GET_INFO_HASH() {
+    INFO_HASH=$(cat "${RPC_RESULT}" | jq -r '.result.infoHash')
+    if [[ -z "${INFO_HASH}" ]]; then
+        echo "${RPC_RESULT}" | jq '.result'
+        echo -e "$(DATE_TIME) ${ERROR} Failed to get Info Hash!"
+        exit 1
+    elif [[ "${INFO_HASH}" = "null" ]]; then
+        return 1
+    else
+        TORRENT_FILE="${SOURCE_PATH}/${INFO_HASH}.torrent"
+    fi
+}

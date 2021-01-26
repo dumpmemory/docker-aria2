@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 . "$(dirname $0)/core"
+. "$(dirname $0)/rpc_info"
 
 TASK_GID=$1
 FILE_NUM=$2

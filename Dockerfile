@@ -15,10 +15,10 @@ PUID=1026 PGID=100
 
 # copy local files && aria2c
 COPY root/ /
-COPY --from=builder  /usr/local/bin/aria2c  /usr/local/bin/aria2c
+COPY --from=builder /usr/local/bin/aria2c /usr/local/bin/aria2c
 
 # permissions
-RUN apk add --no-cache curl findutils \
+RUN apk add --no-cache curl jq findutils \
 && chmod a+x /usr/local/bin/aria2c \
 && rm -rf /var/cache/apk/* /tmp/*
 
