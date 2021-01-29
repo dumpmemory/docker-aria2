@@ -3,6 +3,7 @@
 # make folders
 mkdir -p \
 	/config/ssl \
+  /config/backup-torrent \
   /downloads/completed \
   /downloads/recycle
 
@@ -15,6 +16,21 @@ fi
 if [[ ! -e /config/setting.conf ]]
 then
   cp /aria2/conf/setting.conf /config/setting.conf
+fi
+
+# 保留配置、更新修改配置文件
+if [[ -e /config/setting.conf ]]
+then
+  "/aria2/script/setting"
+  cp /aria2/conf/setting.conf /config/setting.conf.new
+  sed -i "s@^\(remove-task=\).*@\1${RMTASK}@" /config/setting.conf.new
+  sed -i "s@^\(move=\).*@\1${MOVE}@" /config/setting.conf.new
+  sed -i "s@^\(content-filter=\).*@\1${CF}@" /config/setting.conf.new
+  sed -i "s@^\(delete-empty-dir=\).*@\1${DET}@" /config/setting.conf.new
+  sed -i "s@^\(handle-torrent=\).*@\1${TOR}@" /config/setting.conf.new
+  sed -i "s@^\(remove-repeat-task=\).*@\1${RRT}@" /config/setting.conf.new
+  rm -f /config/setting.conf
+  mv /config/setting.conf.new /config/setting.conf
 fi
 
 if [[ ! -e /config/文件过滤.conf ]]
