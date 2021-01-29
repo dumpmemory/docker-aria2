@@ -202,7 +202,8 @@ HANDLE_TORRENT() {
 
 CHECK_TORRENT() {
     if [ -e "${TORRENT_FILE}" ]; then
-    HANDLE_TORRENT
+        HANDLE_TORRENT
+    fi
 }
 
 # =============================判断文件路径=============================
