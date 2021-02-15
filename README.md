@@ -35,7 +35,7 @@ __当前的镜像或多或少都有以下几点不符合的我的需求__
 - 默认开启DHT并且创建了DHT文件，加速下载
 - 包含了下载完成后自动删除.aria2文件脚本
 - 包含了执行删除正在下载任务事时自动执行删除文件（删除已完成的任务不会删除文件，请放心）和aria2文件的脚本
-- 内置最优的aria2配置文件（来自[P3TERX/aria2.conf](https://github.com/P3TERX/aria2.conf)，感谢）
+- 内置最优的aria2配置文件（修改自[P3TERX/aria2.conf](https://github.com/P3TERX/aria2.conf)，感谢）
 - 内置400多条最新trackers（来自[XIU2 / TrackersListCollection](https://github.com/XIU2/TrackersListCollection)，感谢）
 - 每天自动更新trackers，不需要重启aria2即可生效（来自[P3TERX/aria2.conf](https://github.com/P3TERX/aria2.conf)，感谢）
 - 默认上海时区 Asia/Shanghai
@@ -76,13 +76,21 @@ docker pull superng6/aria2:webui-latest
 
 # Changelogs
 
+## 2021/02/15
+
+      1、新增：任务暂停后移动文件，部分任务下载至百分之99时无法下载，可以启动本选项，具体请查看`/config/setting.conf`中的详细说明
+
+## 2021/01/31
+
+      1、文件过滤：新增关键词过滤，具体请参照`/config/文件过滤.conf`
+
 ## 2021/01/29
 
-      1、新增检测重复任务功能，若已完成目录有当前任务，则取消下载，删除任务文件，默认开启
-      2、参考P3TERX大佬的配置文件，检测任务任务方式由递归变更为RPC，把aria2的官方文档啃了一边，收获挺多
+      1、新增检测重复任务功能，若已完成目录有当前任务，则取消下载，并删除任务文件，默认开启
+      2、参考P3TERX大佬的配置文件，检测任务的方式由递归变更为RPC，把aria2的官方文档啃了一遍，收获颇多
       3、新增种子文件文件备份、重命名功能，具体请查看`/config/setting.conf`中的详细说明
       4、自动更新新功能至`/config/setting.conf`
-      5、更强的稳定性，几乎把我能想到的所有会出现的状况都考虑到了
+      5、更强的稳定性，绝大部分可能会出现的状况都考虑到了
       6、更多功能请自行体验
 
 ## 2021/01/24
@@ -92,7 +100,7 @@ docker pull superng6/aria2:webui-latest
    - 3、新增`setting.conf`，docker aria2 扩展功能设置
    - 4、`MOVE`、`内容过滤`、`删除空文件夹`、`回收站`等选项，移至`/config/setting.conf`，建议删除容器重新配置
 
-2、可以自定义任意二级目录，不用像之前那样手动预设二级目录里（后处理脚本正确运行）  
+2、可以自定义任意二级目录，不用像之前那样手动预设二级目录了（后处理脚本正确运行）  
 3、如果有特殊需要，想使用大改版前的版本，可以使用`stable-21-01-23`版，`docker pull superng6/aria2:stable-21-01-23`  
 4、新增历史版本，请在docker hub tags中查阅  
 
@@ -277,6 +285,7 @@ https://hub.docker.com/r/superng6/ariang
 | `-e PGID=100` |Linux用户GID|
 | `-e SECRET=yourtoken` |Aria2 token|
 | `-e CACHE=1024M` |Aria2磁盘缓存配置|
+| `-e PORT=6800` | RPC通讯端口 |
 | `-e UT=true` |启动容器时更新trackers|
 | `-e RUT=true` |每天凌晨3点更新trackers|
 | `-e SMD=true` |保存磁力链接为种子文件|
@@ -301,24 +310,52 @@ remove-task=rmaria
 # 下载完成后执行操作选项，默认`false`
 # `true`，下载完成后保留目录结构移动
 # `dmof`非自定义目录任务，单文件，不执行移动操作。自定义目录、单文件，保留目录结构移动（推荐）
-move=false
+move-task=false
 
 # 文件过滤，任务下载完成后删除不需要的文件内容，`false`、`true`
-# 由于aria2自身限制，无法在下载前取消不需要的文件（取消后也时任务完成删除文件）
+# 由于aria2自身限制，无法在下载前取消不需要的文件（只能在任务完成后删除文件）
 content-filter=false
 
 # 下载完成后删除空文件夹，默认`true`，需要开启文件过滤功能才能生效
 # 开启内容过滤后，可能会产生空文件夹，开启`DET`选项后可以删除当前任务中的空文件夹
 delete-empty-dir=true
 
-# 是否删除种子文件，默认保留`retain`,可选删除`delete`，备份种子文件`backup`、重命名种子文件`rename`，重命名种子文件并备份`backup-rename`
-# 在开启`SMD`选项后生效，上传种子无法更名、移动、删除，仅对通过磁力链接保存的种子生效
+# 对磁力链接生成的种子文件进行操作
+# 在开启`SMD`选项后生效，上传的种子无法更名、移动、删除，仅对通过磁力链接保存的种子生效
+# 默认保留`retain`,可选删除`delete`，备份种子文件`backup`、重命名种子文件`rename`，重命名种子文件并备份`backup-rename`
 # 种子备份位于`/config/backup-torrent`
 handle-torrent=rename
 
-# 删除重复任务，检测已完成文件夹，如果有该任务文件，则删除任务，并删除文件，仅针对文件数量大于1的任务
+# 删除重复任务，检测已完成文件夹，如果有该任务文件，则删除任务，并删除文件，仅针对文件数量大于1的任务生效
 # 默认`true`，可选`false`关闭该功能
 remove-repeat-task=true
+
+# 任务暂停后移动文件，部分任务下载至百分之99时无法下载，可以启动本选项
+# 建议仅在需要时开启该功能，使用完后请记得关闭
+# 默认`false`，可选`true`开启该功能
+move-paused-task=false
+
+````
+
+### `/config/文件过滤.conf` 配置说明
+
+````
+## 文件过滤设置(全局) ##
+
+# 仅 BT 多文件下载时有效，用于过滤无用文件。
+# 可自定义；如需启用请删除对应行的注释 # 
+
+# 排除小文件。低于此大小的文件将在下载完成后被删除。
+#min-size=10M
+
+# 保留文件类型。其它文件类型将在下载完成后被删除。
+#include-file=mp4|mkv|rmvb|mov|avi|srt|ass
+
+# 排除文件类型。排除的文件类型将在下载完成后被删除。
+#exclude-file=html|url|lnk|txt|jpg|png
+
+# 按关键词排除。包含以下关键字的文件将在下载完成后被删除。
+#keyword-file=广告1|广告2|广告3
 
 ````
 
@@ -328,13 +365,14 @@ remove-repeat-task=true
 
 __执行命令__
 ````
-docker create \
+docker run -d \
   --name=aria2 \
   -e PUID=1026 \
   -e PGID=100 \
   -e TZ=Asia/Shanghai \
   -e SECRET=yourtoken \
   -e CACHE=512M \
+  -e PORT=6800 \
   -e UT=true \
   -e RUT=true \
   -e FA=falloc \
@@ -362,6 +400,7 @@ services:
       - TZ=Asia/Shanghai
       - SECRET=yourtoken
       - CACHE=512M
+      - PORT=6800
       - UT=true
       - QUIET=true
       - SMD=false
@@ -369,10 +408,10 @@ services:
       - $PWD/config:/config
       - $PWD/downloads:/downloads
     ports:
-      - 6800:6800
       - 6881:6881
       - 6881:6881/udp
-    restart: unless-stopped 
+      - 6800:6800
+    restart: unless-stopped   
 ````
 
 # Preview
