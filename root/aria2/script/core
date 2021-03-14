@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-
+GET_DOWNLOAD_PATH() {
+    # Aria2下载根目录
+    T_DOWNLOAD_PATH="${FILE_PATH#/}"
+    DOWNLOAD_PATH="/${T_DOWNLOAD_PATH%%/*}"
+}
 GET_BASE_PATH() {
-    # Aria2下载目录
-    DOWNLOAD_PATH="/downloads"
+    GET_DOWNLOAD_PATH
     # 种子备份目录
     BAK_TORRENT_DIR="/config/backup-torrent"
     # 日志、配置文件保存路径
@@ -17,12 +20,12 @@ GET_BASE_PATH() {
 
 COMPLETED_PATH() {
     # 完成任务后转移
-    TARGET_DIR="/downloads/completed"
+    TARGET_DIR="${DOWNLOAD_PATH}/completed"
 }
 
 RECYCLE_PATH() {
     # 回收站
-    TARGET_DIR="/downloads/recycle"
+    TARGET_DIR="${DOWNLOAD_PATH}/recycle"
 }
 
 # ============================颜色==============================
