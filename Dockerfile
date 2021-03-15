@@ -25,3 +25,4 @@ RUN apk add --no-cache curl jq findutils \
 VOLUME /config /downloads
 
 EXPOSE 6800  6881  6881/udp
+

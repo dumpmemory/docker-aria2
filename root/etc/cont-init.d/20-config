@@ -1,14 +1,17 @@
 #!/usr/bin/with-contenv bash
 
-# make folders
+# 创建必要文件夹
 mkdir -p \
 	/config/ssl \
   /config/backup-torrent \
-  /config/logs \
-  /downloads/completed \
-  /downloads/recycle
+  /config/logs
 
-# copy files
+if [[ -n "${RDP}" ]]
+then
+  mkdir "${RDP}"
+fi
+
+# 拷贝配置文件
 if [[ ! -e /config/aria2.conf ]]
 then
   cp /aria2/conf/aria2.conf.default /config/aria2.conf
@@ -48,7 +51,11 @@ fi
 
 
 # 2021.03.15 变更：日志文件地址变更为`/config/logs`
-mv /config/*.log /config/logs/
+if [[ -e /config/move.log || -e /config/recycle.log || -e /config/delete.log || -e /config/文件过滤日志.log ]]
+then
+  mv /config/*.log /config/logs/
+fi
+
 
 if [[ ! -e /config/logs/move.log ]]
 then
