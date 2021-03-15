@@ -48,10 +48,7 @@ fi
 
 
 # 2021.03.15 变更：日志文件地址变更为`/config/logs`
-if [[ -e /config/*.log ]]
-then
-  mv /config/*.log /config/logs/
-fi
+mv /config/*.log /config/logs/
 
 if [[ ! -e /config/logs/move.log ]]
 then

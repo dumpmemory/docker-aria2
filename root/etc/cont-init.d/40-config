@@ -5,7 +5,7 @@
 
 chown -R abc:abc \
     /config \
-    /"${RDP}"
+    /downloads "${RDP}"
   
 chmod a+x \
   /aria2/script/*
