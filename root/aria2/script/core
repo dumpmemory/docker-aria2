@@ -9,7 +9,7 @@ GET_BASE_PATH() {
     # 种子备份目录
     BAK_TORRENT_DIR="/config/backup-torrent"
     # 日志、配置文件保存路径
-    SCRIPT_CONF="/config/logs/文件过滤.conf"
+    SCRIPT_CONF="/config/文件过滤.conf"
     CF_LOG="/config/logs/文件过滤日志.log"
     MOVE_LOG="/config/logs/move.log"
     DELETE_LOG="/config/logs/delete.log"
@@ -195,13 +195,13 @@ HANDLE_TORRENT() {
         return
     elif [ "${TOR}" = "rename" ]; then
         echo -e "$(DATE_TIME) ${INFO} deleted ${TORRENT_FILE}"
-        mv -f "${TORRENT_FILE}" "${TASK_PATH}.torrent"
+        mv -f "${TORRENT_FILE}" "${TASK_NAME}.torrent"
     elif [ "${TOR}" = "backup" ]; then
         echo -e "$(DATE_TIME) ${INFO} backup ${TORRENT_FILE}"
         mv -vf "${TORRENT_FILE}" "${BAK_TORRENT_DIR}"
     elif [ "${TOR}" = "backup-rename" ]; then
-        echo -e "$(DATE_TIME) ${INFO} backup ${BAK_TORRENT_DIR}/${TASK_PATH}.torrent"
-        mv -f "${TORRENT_FILE}" "${BAK_TORRENT_DIR}/${TASK_PATH}.torrent"
+        echo -e "$(DATE_TIME) ${INFO} backup ${BAK_TORRENT_DIR}/${TASK_NAME}.torrent"
+        mv -f "${TORRENT_FILE}" "${BAK_TORRENT_DIR}/${TASK_NAME}.torrent"
     fi
 }
 
@@ -216,12 +216,12 @@ CHECK_TORRENT() {
 GET_TARGET_PATH() {
     RELATIVE_PATH="${SOURCE_PATH#${DOWNLOAD_PATH}/}"
     TARGET_PATH="${TARGET_DIR}/$(dirname "${RELATIVE_PATH}")"
+    # 出现 // 说明路径获取失败，为防止后续操作继续执行返回 error
     if [ "${TARGET_PATH}" == "${TARGET_DIR}//" ]; then
-        # 出现 // 说明路径获取失败，为防止后续操作继续执行返回 error
         GET_PATH_INFO="error"
         return
+    # /downloads根目录下载会出现 /.
     elif [ "${TARGET_PATH}" = "${TARGET_DIR}/." ]; then
-        # /downloads根目录下载会出现 /.
         TARGET_PATH="${TARGET_DIR}"
     fi
 }
@@ -229,16 +229,21 @@ GET_TARGET_PATH() {
 GET_FINAL_PATH() { 
     if [ -z "${FILE_PATH}" ]; then
         return
+    # 判断是否为在文件夹内的单文件BT下载任务（会出现移动文件后文件夹保留的情况），如果是则降级到目录
+    # 修复Mac下能够正常运行，Linux下失败的问题
+    elif [ "${FILE_NUM}" -gt 1 ] || [ "$(dirname "${FILE_PATH}")" != "${DOWNLOAD_DIR}" ]; then
+        RELATIVE_PATH="${FILE_PATH#${DOWNLOAD_DIR}/}"
+        TASK_NAME="${RELATIVE_PATH%%/*}"
+        SOURCE_PATH="${DOWNLOAD_DIR}/${TASK_NAME}"
+        GET_TARGET_PATH
+        COMPLETED_DIR="${TARGET_PATH}/${TASK_NAME}"
+        return
     elif [ "${FILE_NUM}" -eq 1 ]; then
         SOURCE_PATH="${FILE_PATH}"
         RELATIVE_PATH="${FILE_PATH#${DOWNLOAD_DIR}/}"
-        TASK_PATH="${RELATIVE_PATH%.*}"
+        # 单文件，去除.
+        TASK_NAME="${RELATIVE_PATH%.*}"
         GET_TARGET_PATH
-    elif [ "${FILE_NUM}" -gt 1 ]; then
-        RELATIVE_PATH="${FILE_PATH#${DOWNLOAD_DIR}/}"
-        TASK_PATH="${RELATIVE_PATH%%/*}"
-        SOURCE_PATH="${DOWNLOAD_DIR}/${TASK_PATH}"
-        GET_TARGET_PATH
-        COMPLETED_DIR="${TARGET_PATH}/${TASK_PATH}"
+        return
     fi
 }

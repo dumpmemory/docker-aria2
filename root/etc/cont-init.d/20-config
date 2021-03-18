@@ -3,6 +3,7 @@
 # 创建必要文件夹
 mkdir -p \
 	/config/ssl \
+  /config/logs \
   /config/backup-torrent \
   /config/logs
 
@@ -49,14 +50,13 @@ then
   touch /config/dht.dat
 fi
 
-
 # 2021.03.15 变更：日志文件地址变更为`/config/logs`
 if [[ -e /config/move.log || -e /config/recycle.log || -e /config/delete.log || -e /config/文件过滤日志.log ]]
 then
   mv /config/*.log /config/logs/
 fi
 
-
+# 创建日志文件
 if [[ ! -e /config/logs/move.log ]]
 then
   touch /config/logs/move.log
