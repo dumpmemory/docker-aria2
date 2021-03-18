@@ -10,7 +10,6 @@ LOAD_CONF() {
     TOR="$(grep ^handle-torrent "${SCRIPT_CONF}" | cut -d= -f2-)"
     RRT="$(grep ^remove-repeat-task "${SCRIPT_CONF}" | cut -d= -f2-)"
     MPT="$(grep ^move-paused-task "${SCRIPT_CONF}" | cut -d= -f2-)"
-    RDP="$(grep ^root-download-path "${SCRIPT_CONF}" | cut -d= -f2-)"
 }
 
 SED_CONF() {
@@ -22,7 +21,6 @@ SED_CONF() {
     sed -i "s@^\(handle-torrent=\).*@\1${TOR}@" /config/setting.conf.new
     sed -i "s@^\(remove-repeat-task=\).*@\1${RRT}@" /config/setting.conf.new
     sed -i "s@^\(move-paused-task=\).*@\1${MPT}@" /config/setting.conf.new
-    sed -i "s@^\(root-download-path=\).*@\1${RDP}@" /config/setting.conf.new
     rm -f /config/setting.conf
     mv /config/setting.conf.new /config/setting.conf
 }

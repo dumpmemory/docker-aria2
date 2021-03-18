@@ -1,18 +1,14 @@
 #!/usr/bin/with-contenv bash
 
-# 创建必要文件夹
+# make folders
 mkdir -p \
 	/config/ssl \
   /config/logs \
   /config/backup-torrent \
-  /config/logs
+  /downloads/completed \
+  /downloads/recycle
 
-if [[ -n "${RDP}" ]]
-then
-  mkdir "${RDP}"
-fi
-
-# 拷贝配置文件
+# copy files
 if [[ ! -e /config/aria2.conf ]]
 then
   cp /aria2/conf/aria2.conf.default /config/aria2.conf
@@ -28,11 +24,6 @@ if [[ -e /config/setting.conf ]]
 then
   . /aria2/script/setting
   SED_CONF
-fi
-
-if [[ ! -e /config/文件过滤.conf ]]
-then
-  cp /aria2/conf/文件过滤.conf /config/文件过滤.conf
 fi
 
 if [[ ! -e /config/文件过滤.conf ]]

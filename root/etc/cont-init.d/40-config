@@ -1,16 +1,9 @@
 #!/usr/bin/with-contenv bash
 
 # permissions
-. /aria2/script/setting
-
 chown -R abc:abc \
     /config \
     /downloads
-
-if [[ -n "${RDP}" ]]
-then
-  chown -R abc:abc "${RDP}"
-fi
-
+  
 chmod a+x \
   /aria2/script/*
