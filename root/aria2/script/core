@@ -51,7 +51,7 @@ ${LIGHT_PURPLE_FONT_PREFIX}根下载路径:${FONT_COLOR_SUFFIX} ${DOWNLOAD_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}任务位置:${FONT_COLOR_SUFFIX} ${SOURCE_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}首个文件位置:${FONT_COLOR_SUFFIX} ${FILE_PATH}
 ${LIGHT_PURPLE_FONT_PREFIX}任务文件数量:${FONT_COLOR_SUFFIX} ${FILE_NUM}
-${LIGHT_PURPLE_FONT_PREFIX}移动目标文件夹:${FONT_COLOR_SUFFIX} ${TARGET_PATH}
+${LIGHT_PURPLE_FONT_PREFIX}移动至目标文件夹:${FONT_COLOR_SUFFIX} ${TARGET_PATH}
 -----------------------------------------------------------------------------------------------------------------------
 "
 }
@@ -91,7 +91,7 @@ DELETE_EXCLUDE_FILE() {
 RM_ARIA2() {
     if [ -e "${SOURCE_PATH}.aria2" ]; then
         rm -f "${SOURCE_PATH}.aria2"
-        echo -e "$(DATE_TIME) ${INFO} 已删除 ${SOURCE_PATH}.aria2"
+        echo -e "$(DATE_TIME) ${INFO} 已删除文件: ${SOURCE_PATH}.aria2"
     fi
 }
 
@@ -130,13 +130,13 @@ MOVE_FILE() {
         TASK_TYPE=": 移动任务文件"
         TASK_INFO
         CLEAN_UP
-        echo -e "$(DATE_TIME) ${INFO} 开始移动已下载的任务到 ${LIGHT_GREEN_FONT_PREFIX}${TARGET_PATH}${FONT_COLOR_SUFFIX}"
+        echo -e "$(DATE_TIME) ${INFO} 开始移动该任务文件到: ${LIGHT_GREEN_FONT_PREFIX}${TARGET_PATH}${FONT_COLOR_SUFFIX}"
         mkdir -p "${TARGET_PATH}"
         mv -f "${SOURCE_PATH}" "${TARGET_PATH}"
         MOVE_EXIT_CODE=$?
         if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-            echo -e "$(DATE_TIME) ${INFO} 文件移动完成: ${SOURCE_PATH} -> ${TARGET_PATH}"
-            [ ${MOVE_LOG} ] && echo -e "$(DATE_TIME) [INFO] 文件移动完成: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${MOVE_LOG}
+            echo -e "$(DATE_TIME) ${INFO} 已移动文件至目标文件夹: ${SOURCE_PATH} -> ${TARGET_PATH}"
+            [ ${MOVE_LOG} ] && echo -e "$(DATE_TIME) [INFO] 已移动文件至目标文件夹: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${MOVE_LOG}
         else
             echo -e "$(DATE_TIME) ${ERROR} 文件移动失败: ${SOURCE_PATH}"
             [ ${MOVE_LOG} ] && echo -e "$(DATE_TIME) [ERROR] 文件移动失败: ${SOURCE_PATH}" >>${MOVE_LOG}
@@ -153,7 +153,7 @@ DELETE_FILE() {
     rm -rf "${SOURCE_PATH}"
     MOVE_EXIT_CODE=$?
     if [ ${MOVE_EXIT_CODE} -eq 0 ]; then
-        echo -e "$(DATE_TIME) ${INFO} 已删除: ${SOURCE_PATH}"
+        echo -e "$(DATE_TIME) ${INFO} 已删除文件: ${SOURCE_PATH}"
         [ ${DELETE_LOG} ] && echo -e "$(DATE_TIME) [INFO] 文件删除成功: ${SOURCE_PATH}" >>${DELETE_LOG}
     else
         echo -e "$(DATE_TIME) ${ERROR} delete failed: ${SOURCE_PATH}"
@@ -175,7 +175,7 @@ MOVE_RECYCLE() {
         [ ${RECYCLE_LOG} ] && echo -e "$(DATE_TIME) [INFO] 成功移动文件到回收站: ${SOURCE_PATH} -> ${TARGET_PATH}" >>${RECYCLE_LOG}
     else
         echo -e "$(DATE_TIME) ${ERROR} 移动文件到回收站失败: ${SOURCE_PATH}"
-        echo -e "$(DATE_TIME) ${INFO} 已删除: ${SOURCE_PATH}"
+        echo -e "$(DATE_TIME) ${INFO} 已删除文件: ${SOURCE_PATH}"
         rm -rf "${SOURCE_PATH}"
         [ ${RECYCLE_LOG} ] && echo -e "$(DATE_TIME) [ERROR] 移动文件到回收站失败: ${SOURCE_PATH}" >>${RECYCLE_LOG}
     fi
@@ -187,17 +187,17 @@ HANDLE_TORRENT() {
     if [ "${TOR}" = "retain" ]; then
         return
     elif [ "${TOR}" = "delete" ]; then
-        echo -e "$(DATE_TIME) ${INFO} 已删除种子文件 ${TORRENT_FILE}"
+        echo -e "$(DATE_TIME) ${INFO} 已删除种子文件: ${TORRENT_FILE}"
         rm -f "${TORRENT_FILE}"
         return
     elif [ "${TOR}" = "rename" ]; then
-        echo -e "$(DATE_TIME) ${INFO} 已删除种子文件 ${TORRENT_FILE}"
+        echo -e "$(DATE_TIME) ${INFO} 已删除种子文件: ${TORRENT_FILE}"
         mv -f "${TORRENT_FILE}" "${TASK_NAME}.torrent"
     elif [ "${TOR}" = "backup" ]; then
-        echo -e "$(DATE_TIME) ${INFO} 备份种子文件 ${TORRENT_FILE}"
+        echo -e "$(DATE_TIME) ${INFO} 备份种子文件: ${TORRENT_FILE}"
         mv -vf "${TORRENT_FILE}" "${BAK_TORRENT_DIR}"
     elif [ "${TOR}" = "backup-rename" ]; then
-        echo -e "$(DATE_TIME) ${INFO} 重命名并备份种子文件 ${BAK_TORRENT_DIR}/${TASK_NAME}.torrent"
+        echo -e "$(DATE_TIME) ${INFO} 重命名并备份种子文件: ${BAK_TORRENT_DIR}/${TASK_NAME}.torrent"
         mv -f "${TORRENT_FILE}" "${BAK_TORRENT_DIR}/${TASK_NAME}.torrent"
     fi
 }
