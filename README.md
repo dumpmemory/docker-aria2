@@ -79,7 +79,7 @@ docker pull superng6/aria2:webui-latest
 | arm64        | webui-latest         |
 | armhf        | webui-latest         |
 
-#### a2b-latest (屏蔽迅雷、qq旋风、影音先锋、百度网盘等吸血客户端)
+#### a2b-latest (屏蔽迅雷、qq旋风、影音先锋、百度网盘等吸血客户端 @makeding )
 docker pull superng6/aria2:a2b-latest  
 
 | Architecture | Tag            |
