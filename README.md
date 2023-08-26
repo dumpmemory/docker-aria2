@@ -92,6 +92,8 @@ https://sleele.com/2021/09/04/nas-ssd-aria2-qbittorrent/
 ## 2023/08/26
 
       1、`superng6/aria2:a2b-latest` 镜像可屏蔽迅雷、qq旋风、影音先锋、百度网盘等吸血客户端`A2B=true`(集成自makeding/aria2b，感谢)
+         具体使用方法请翻到最下面，查看docker-compose
+         需要开启`cap_add:- NET_ADMIN` 和挂载 `/lib/modules:/lib/modules`
 
 ## 2022/11/16
 
@@ -539,4 +541,5 @@ services:
 # Preview
 ![N94s7q](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/N94s7q.jpg)
 ![Hq0pXW](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/Hq0pXW.jpg)
+![ZnN4jk](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/ZnN4jk.png)
 ![Xnip2020-05-11_15-43-56](https://cdn.jsdelivr.net/gh/SuperNG6/pic@master/uPic/Xnip2020-05-11_15-43-56.png)
