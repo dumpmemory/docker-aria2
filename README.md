@@ -79,6 +79,14 @@ docker pull superng6/aria2:webui-latest
 | arm64        | webui-latest         |
 | armhf        | webui-latest         |
 
+#### a2b-latest (屏蔽迅雷、qq旋风、影音先锋、百度网盘等吸血客户端)
+docker pull superng6/aria2:a2b-latest  
+
+| Architecture | Tag            |
+| ------------ | -------------- |
+| x86-64       | a2b-latest         |
+| arm64        | a2b-latest         |
+| armhf        | a2b-latest         |
 
 ## 往后所有新增功能设置选项均在`/config/setting.conf`
 ### 额外补充文章  
