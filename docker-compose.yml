@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.6"
 services:
   aria2:
     image: superng6/aria2:a2b-latest
@@ -20,6 +20,7 @@ services:
       - QUIET=true
       - SMD=true
       - A2B=true
+      - CRA2B=2h
     volumes:
       - $PWD/config:/config
       - $PWD/downloads:/downloads

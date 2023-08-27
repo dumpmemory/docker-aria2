@@ -98,6 +98,12 @@ NAS SSD临时下载盘，Aria2+qbittorrent配置教程
 https://sleele.com/2021/09/04/nas-ssd-aria2-qbittorrent/
 
 # Changelogs
+## 2023/08/26
+
+      1、`superng6/aria2:a2b-latest` 镜像可屏蔽迅雷、qq旋风、影音先锋、百度网盘等吸血客户端`A2B=true`(集成自makeding/aria2b，感谢)
+         具体使用方法请翻到最下面，查看docker-compose
+         需要开启`cap_add:- NET_ADMIN` 和挂载 `/lib/modules:/lib/modules`
+      2、添加ENV `CRA2B=2h`,默认为2小时重启一次aria2b。可设置为1h到24h，CRA2B=false则为禁用自动重启aria2b
 
 ## 2023/08/26
 
@@ -540,6 +546,7 @@ services:
       - QUIET=true
       - SMD=true
       - A2B=true
+      - CRA2B=2h
     volumes:
       - $PWD/config:/config
       - $PWD/downloads:/downloads
